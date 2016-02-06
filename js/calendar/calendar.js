@@ -1,5 +1,6 @@
 var calendar = {
 	eventList: [],
+	calendarNameList: [],
 	calendarLocation: '.calendar',
 	updateInterval: 1000,
 	updateDataInterval: 60000,
@@ -18,13 +19,6 @@ var calendar = {
 
 calendar.processEvents = function (url, events) {
 	tmpEventList = [];
-	var eventListLength = this.eventList.length;
-	for (var i = 0; i < eventListLength; i++) {
-		if (this.eventList[i]['url'] != url) {
-			tmpEventList.push(this.eventList[i]);
-		}
-	}
-	this.eventList = tmpEventList;
 
 	for (var i in events) {
 
@@ -76,7 +70,7 @@ calendar.processEvents = function (url, events) {
 				var time_string = moment(startDate).calendar()
 			}
 			if (!e.RRULE) {
-				this.eventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
+				tmpEventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
 			}
 			e.seconds = seconds;
 		} else if  (endSeconds > 0) {
@@ -87,7 +81,7 @@ calendar.processEvents = function (url, events) {
 				var time_string = this.longRunningText + ' ' + moment(endDate).calendar()
 			}
 			if (!e.RRULE) {
-				this.eventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
+				tmpEventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
 			}
 			e.seconds = endSeconds;
 		}
@@ -112,20 +106,28 @@ calendar.processEvents = function (url, events) {
 					} else {
 						var time_string = moment(dt).calendar()
 					}
-					this.eventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
+					tmpEventList.push({'description':e.SUMMARY,'seconds':seconds,'days':time_string,'url': url, symbol: this.calendarSymbol});
 				}
 			}
 		}
 	};
 
-	this.eventList = this.eventList.sort(function(a,b){return a.seconds-b.seconds});
+	tmpEventList = tmpEventList.sort(function(a,b){return a.seconds-b.seconds});
 
 	// Limit the number of entries.
-	this.eventList = this.eventList.slice(0, calendar.maximumEntries);
+	tmpEventList = tmpEventList.slice(0, calendar.maximumEntries);
+	
+	var eventListLength = tmpEventList.length;
+	for (var i = 0; i < eventListLength; i++) {
+		//if (tmpEventList[i]['url'] != url) {
+			this.eventList.push(tmpEventList[i]);
+		//}
+	}
 }
 
 calendar.updateData = function (callback) {
 	new ical_parser("controllers/calendar.php" + "?url="+encodeURIComponent(this.calendarUrl), function(cal) {
+		this.calendarNameList.push(cal.getCalendarName());
 		this.processEvents(this.calendarUrl, cal.getEvents());
 
 		this.calendarPos++;
@@ -144,6 +146,7 @@ calendar.updateData = function (callback) {
 		if (typeof config.calendar.urls != 'undefined') {
 			this.calendarUrl = config.calendar.urls[this.calendarPos].url;
 			this.calendarSymbol = config.calendar.urls[this.calendarPos].symbol || this.defaultSymbol;
+
 		}
 
 	}.bind(this));
@@ -158,7 +161,17 @@ calendar.updateCalendar = function (eventList) {
 	table = $('<table/>').addClass('xsmall').addClass('calendar-table');
 	opacity = 1;
 
+	var previousURL = '';
+	var nameListIndex = 0;
 	for (var i in eventList) {
+		if (eventList[i]['url'] != previousURL) {
+			var header = $('<tr/>').attr('id', 'title'+nameListIndex).addClass('calendar-title').addClass('small');
+			header.append($('<td/>').addClass('spacer'));
+ 			header.append($('<td/>').html(this.calendarNameList[nameListIndex]).addClass('name'));
+			table.append(header);
+			previousURL = eventList[i]['url'];
+			nameListIndex++;
+		}
 		var e = eventList[i];
 		var row = $('<tr/>').attr('id', 'event'+i).css('opacity',opacity).addClass('event');
 		if (this.displaySymbol) {
@@ -166,7 +179,7 @@ calendar.updateCalendar = function (eventList) {
 		}
 		row.append($('<td/>').html(e.description).addClass('description'));
 		row.append($('<td/>').html(e.days).addClass('days dimmed'));
-		if (! _is_new && $('#event'+i).length) {
+		if (! _is_new && $('#event'+i).length+2) {
 			$('#event'+i).updateWithText(row.children(), this.fadeInterval);
 		} else {
 			// Something wrong - replace whole table

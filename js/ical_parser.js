@@ -11,6 +11,7 @@ function ical_parser(feed_url, callback){
 	this.raw_data = null;
 	//Store of proccessed data.
 	this.events = [];
+	this.calendar_name = "";
 	
 	/**
 	 * loadFile
@@ -78,19 +79,32 @@ function ical_parser(feed_url, callback){
 		//Clean string and split the file so we can handle it (line by line)
 		cal_array = data.replace(new RegExp( "\\r", "g" ), "").replace(/\n /g,"").split("\n");
 		
+		var in_cal = false;
 		//Keep track of when we are activly parsing an event
 		var in_event = false;
 		//Use as a holder for the current event being proccessed.
 		var cur_event = null;
 		for(var i=0;i<cal_array.length;i++){
 			ln = cal_array[i];
+			
+			if(ln == 'BEGIN:VCALENDAR'){
+				in_cal = true;
+			}
+			if(in_cal && !in_event){
+				if (ln.substr(0, 12) == "X-WR-CALNAME") {
+					index = ln.indexOf(':');
+					name = ln.substr(index+1).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+					this.calendar_name = name;	
+				}
+			}
+			
 			//If we encounted a new Event, create a blank event object + set in event options.
 			if(!in_event && ln == 'BEGIN:VEVENT'){
 				in_event = true;
 				cur_event = {};
 			}
 			//If we encounter end event, complete the object and add it to our events array then clear it for reuse.
-                        if(in_event && ln == 'END:VEVENT'){
+            if(in_event && ln == 'END:VEVENT'){
 				in_event = false;
 				this.events.push(cur_event);
 				cur_event = null;
@@ -169,6 +183,16 @@ function ical_parser(feed_url, callback){
 	 */
 	this.getEvents = function(){
 		return this.events;
+	}
+	
+	/**
+	 * getCalendarName
+	 * return the calendar name
+	 *
+	 * @return list of events objects
+	 */
+	this.getCalendarName = function(){
+		return this.calendar_name;
 	}
 	
 	/**

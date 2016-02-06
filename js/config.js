@@ -1,5 +1,5 @@
 var config = {
-    lang: 'nl',
+    lang: 'en',
     time: {
         timeFormat: 12,
         displaySeconds: true,
@@ -9,11 +9,11 @@ var config = {
         //change weather params here:
         //units: metric or imperial
         params: {
-            q: 'Baarn,Netherlands',
-            units: 'metric',
+            q: 'Santa Clara,US',
+            units: 'imperial',
             // if you want a different lang for the weather that what is set above, change it here
-            lang: 'nl',
-            APPID: 'YOUR_FREE_OPENWEATHER_API_KEY'
+            lang: 'en',
+            APPID: '3030daf2bb0789f797548b2cf05e9fde'
         }
     },
     compliments: {
@@ -42,7 +42,7 @@ var config = {
         urls: [
 		{
 			symbol: 'calendar-plus-o', 
-			url: 'https://p01-calendarws.icloud.com/ca/subscribe/1/n6x7Farxpt7m9S8bHg1TGArSj7J6kanm_2KEoJPL5YIAk3y70FpRo4GyWwO-6QfHSY5mXtHcRGVxYZUf7U3HPDOTG5x0qYnno1Zr_VuKH2M'
+			url: 'https://p03-calendarws.icloud.com/ca/subscribe/1/Lf7NgfoXK53tbcVJDXGccXzlZAxCMU3GmvGYoNKxw99AV7yOQ_OijAj1z8PPusMBKyRgG_hmXw4UOY78qVP3nOa8SU1XOJ2L6I0QbqXciGo'
 		},
 		{
 			symbol: 'soccer-ball-o',

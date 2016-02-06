@@ -167,18 +167,28 @@ html {
   font-size: 14px;
   line-height: 20px;
   margin-top: 10px;
+  text-align: left;
 }
 
 .calendar-table .calendar-icon {
   width: 1em;
   min-width: 1em;
-  margin-right: 5px;
+  margin-left: 5px;
+  padding-right: 20px;
   text-align: center;
 }
 
+.calendar-title {
+  line-height: 25px;
+  margin-left: -35px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
 .calendar-table .days {
-  padding-left: 20px;
-  text-align: right;
+  padding-left: 10px;
+  text-align: left;
 }
 
 .dishwasher {
